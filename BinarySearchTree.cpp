@@ -5,8 +5,8 @@
 class Node {
 public:
     int data;
-    std::shared_ptr<Node> left;
-    std::shared_ptr<Node> right;
+    std::unique_ptr<Node> left;
+    std::unique_ptr<Node> right;
 
     Node(int val) {
         data = val;
@@ -17,54 +17,54 @@ public:
 
 class BinarySearchTree {
 public:
-    std::shared_ptr<Node> root;
+    std::unique_ptr<Node> root;
 
     BinarySearchTree() {
         root = nullptr;
     }
 
     void insert(int data){
-        std::shared_ptr<Node> newNode = std::make_shared<Node>(data);
+        std::unique_ptr<Node> newNode = std::make_unique<Node>(data);
 
         if(root == nullptr) {
-            root = newNode;
+            root = std::move(newNode);
             return;
         }
 
-        std::shared_ptr<Node> current = root;
+        Node* current = root.get();
         while (true) {
             if (newNode->data == current->data) {
-                current = root;
+                current = root.get();
                 return;
             } else if (newNode->data > current->data) {
                 if (current->right == nullptr){
-                    current->right = newNode;
+                    current->right = std::move(newNode);
                     return;
                 }
-                current = current->right;
+                current = current->right.get();
             } else {
                 if (current->left == nullptr) {
-                    current->left = newNode;
+                    current->left = std::move(newNode);
                     return;
                 }
-                current = current->left;
+                current = current->left.get();
             }
         }   
     }
 
-    void DepthFirstSearch(std::shared_ptr<Node> current) {
+    void DepthFirstSearch(Node* current) {
         if (current->left != nullptr) {
-            DepthFirstSearch(current->left);
+            DepthFirstSearch(current->left.get());
         } 
         std::cout << current->data << " ";
         if (current->right != nullptr){
-            DepthFirstSearch(current->right);
+            DepthFirstSearch(current->right.get());
         } 
         
     }
 
-    void BreadthFirstSearch(std::shared_ptr<Node> current) {
-        std::vector<std::shared_ptr<Node>> queue = {current};
+    void BreadthFirstSearch(Node* current) {
+        std::vector<Node*> queue = {current};
         std::vector<int> visited = {};
 
         while(!queue.empty()) {
@@ -72,11 +72,11 @@ public:
             visited.emplace_back(current->data);
 
             if (current->left) {
-                queue.emplace_back(current->left);
+                queue.emplace_back(current->left.get());
             }
 
             if (current->right) {
-                queue.emplace_back(current->right);
+                queue.emplace_back(current->right.get());
             }
 
             queue.erase(queue.begin());
@@ -102,8 +102,8 @@ int main() {
     bst.insert(4);
     bst.insert(2);
     std::cout << "DFS: ";
-    bst.DepthFirstSearch(bst.root);
+    bst.DepthFirstSearch(bst.root.get());
     std::cout << std::endl << "BFS: ";
-    bst.BreadthFirstSearch(bst.root);
+    bst.BreadthFirstSearch(bst.root.get());
     return 0;
 }
