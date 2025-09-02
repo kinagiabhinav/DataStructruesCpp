@@ -3,6 +3,10 @@
 #include <iostream>
 
 bool numSumExists(const std::vector<int>& arr, const int& target) {
+    // Handle edge cases
+    if (arr.size() < 2) {
+        return false;
+    }
     // Array is sorted
     // two pointers at each extreme while they dont cross each other
     int left = 0;
